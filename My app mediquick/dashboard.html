@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQuick Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00b386;
+            --primary-dark: #009973;
+            --primary-light: rgba(0, 179, 134, 0.1);
+            --secondary: #4a90e2;
+            --text-dark: #2c3e50;
+            --text-light: #718096;
+            --background: #f8fafb;
+            --white: #ffffff;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text-dark);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(0, 179, 134, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(74, 144, 226, 0.05) 0%, transparent 50%),
+                linear-gradient(135deg, rgba(0, 179, 134, 0.02) 0%, rgba(74, 144, 226, 0.02) 100%);
+            background-attachment: fixed;
+        }
+
+        /* Enhanced Background with Logo Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('assets/logo.svg');
+            background-size: 200px;
+            background-repeat: space;
+            opacity: 0.02;
+            z-index: -1;
+            animation: rotateBg 120s linear infinite;
+        }
+
+        @keyframes rotateBg {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--gradient);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 179, 134, 0.2);
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--white);
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-brand:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-brand img {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .nav-brand span {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+
+        nav ul li {
+            opacity: 0;
+            transform: translateY(-10px);
+            animation: fadeInDown 0.5s ease forwards;
+        }
+
+        nav ul li:nth-child(1) { animation-delay: 0.2s; }
+        nav ul li:nth-child(2) { animation-delay: 0.3s; }
+        nav ul li:nth-child(3) { animation-delay: 0.4s; }
+        nav ul li:nth-child(4) { animation-delay: 0.5s; }
+
+        nav ul li a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav ul li a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        nav ul li a:hover::before {
+            left: 100%;
+        }
+
+        nav ul li a:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        nav ul li a.active {
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            position: relative;
+            padding: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .notification-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff4757;
+            color: white;
+            font-size: 12px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: badgePulse 2s infinite;
+        }
+
+        @keyframes badgePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); box-shadow: 0 0 10px rgba(255,71,87,0.5); }
+            100% { transform: scale(1); }
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--white);
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-profile:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-profile::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transform: skewX(-15deg);
+            transition: 0.5s;
+        }
+
+        .user-profile:hover::after {
+            left: 100%;
+        }
+
+        .logout-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: var(--white);
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .logout-menu.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            color: #ff4757;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #fff5f5;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 48px;
+            opacity: 0;
+            animation: fadeInDown 0.8s ease forwards;
+        }
+
+        .welcome-section h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .welcome-section h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: var(--gradient);
+            animation: lineExpand 0.8s ease forwards 1s;
+        }
+
+        @keyframes lineExpand {
+            to { width: 100%; }
+        }
+
+        .welcome-section p {
+            font-size: 18px;
+            color: var(--text-light);
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 48px;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+            animation-delay: 0.2s;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 24px 16px 56px;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--white);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 20px;
+        }
+
+        @media (max-width: 768px) {
+            nav .container {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 16px;
+            }
+
+            .welcome-section h1 {
+                font-size: 28px;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* New Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* New Tiles Section */
+        .tiles-section {
+            margin: 48px 0;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards;
+            animation-delay: 0.5s;
+        }
+
+        .tiles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tile {
+            position: relative;
+            min-height: 200px;
+            border-radius: 20px;
+            overflow: hidden;
+            padding: 32px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .tile::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .tile:hover::before {
+            background: linear-gradient(45deg, rgba(0,0,0,0.6), rgba(0,0,0,0.2));
+        }
+
+        .tile-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .tile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .tile-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .tile-icon i {
+            font-size: 24px;
+            color: white;
+        }
+
+        .tile-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .tile-description {
+            font-size: 16px;
+            opacity: 0.9;
+            margin: 8px 0;
+        }
+
+        .tile-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .tile:hover .tile-footer {
+            opacity: 1;
+            transform: translateX(5px);
+        }
+
+        /* Specific Tile Styles */
+        .tile-medicines {
+            background-image: url('assets/medicines-bg.jpg');
+            background-color: #4CAF50;
+        }
+
+        .tile-tracking {
+            background-image: url('assets/tracking-bg.jpg');
+            background-color: #2196F3;
+        }
+
+        .tile-profile {
+            background-image: url('assets/profile-bg.jpg');
+            background-color: #9C27B0;
+        }
+
+        .tile-sos {
+            background-image: url('assets/sos-bg.jpg');
+            background-color: #f44336;
+        }
+
+        .tile-sos .tile-icon {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); background: rgba(255,255,255,0.3); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .tiles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tile {
+                min-height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="dashboard.html" class="nav-brand">
+                <img src="assets/logo.svg" alt="MediQuick">
+                <span>MediQuick</span>
+            </a>
+            <ul>
+                <li><a href="dashboard.html" class="active">
+                    <i class="material-icons">dashboard</i>
+                    <span>Home</span>
+                </a></li>
+                <li><a href="orders.html">
+                    <i class="material-icons">local_shipping</i>
+                    <span>Orders</span>
+                </a></li>
+                <li><a href="profile.html">
+                    <i class="material-icons">person</i>
+                    <span>Profile</span>
+                </a></li>
+                <li><a href="settings.html">
+                    <i class="material-icons">settings</i>
+                    <span>Settings</span>
+                </a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="notification-btn">
+                    <i class="material-icons">notifications</i>
+                    <span class="notification-badge">2</span>
+                </button>
+                <div class="user-menu">
+                    <div class="user-profile" onclick="toggleLogoutMenu()">
+                        <i class="material-icons">account_circle</i>
+                        <span id="userName">Loading...</span>
+                        <i class="material-icons">arrow_drop_down</i>
+                    </div>
+                    <div class="logout-menu" id="logoutMenu">
+                        <button class="logout-btn" onclick="handleLogout()">
+                            <i class="material-icons">logout</i>
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="welcome-section">
+            <h1>Welcome to MediQuick</h1>
+            <p>Your health, our priority.</p>
+        </div>
+
+        <div class="search-container">
+            <i class="material-icons">search</i>
+            <input type="text" class="search-input" placeholder="Search for medicines...">
+        </div>
+
+        <!-- New Tiles Section -->
+        <section class="tiles-section">
+            <div class="tiles-grid">
+                <div class="tile tile-medicines" onclick="navigateTo('medicines.html')">
+                    <div class="tile-content">
+                        <div class="tile-header">
+                            <div class="tile-icon">
+                                <i class="material-icons">medication</i>
+                            </div>
+                            <h3 class="tile-title">Medicines</h3>
+                        </div>
+                        <p class="tile-description">Order medicines and track your prescriptions</p>
+                        <div class="tile-footer">
+                            <span>Browse Medicines</span>
+                            <i class="material-icons">arrow_forward</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tile tile-tracking" onclick="navigateTo('tracking.html')">
+                    <div class="tile-content">
+                        <div class="tile-header">
+                            <div class="tile-icon">
+                                <i class="material-icons">local_shipping</i>
+                            </div>
+                            <h3 class="tile-title">Order Tracking</h3>
+                        </div>
+                        <p class="tile-description">Track your medicine deliveries in real-time</p>
+                        <div class="tile-footer">
+                            <span>Track Orders</span>
+                            <i class="material-icons">arrow_forward</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tile tile-profile" onclick="navigateTo('profile.html')">
+                    <div class="tile-content">
+                        <div class="tile-header">
+                            <div class="tile-icon">
+                                <i class="material-icons">person</i>
+                            </div>
+                            <h3 class="tile-title">My Profile</h3>
+                        </div>
+                        <p class="tile-description">Manage your profile and prescriptions</p>
+                        <div class="tile-footer">
+                            <span>View Profile</span>
+                            <i class="material-icons">arrow_forward</i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tile tile-sos" onclick="navigateTo('emergency.html')">
+                    <div class="tile-content">
+                        <div class="tile-header">
+                            <div class="tile-icon">
+                                <i class="material-icons">emergency</i>
+                            </div>
+                            <h3 class="tile-title">Emergency SOS</h3>
+                        </div>
+                        <p class="tile-description">Get immediate medical assistance</p>
+                        <div class="tile-footer">
+                            <span>Get Help Now</span>
+                            <i class="material-icons">arrow_forward</i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="dashboard-grid">
+            <div class="card" onclick="navigateTo('medicines.html')">
+                <div class="card-icon">
+                    <i class="material-icons">local_pharmacy</i>
+                </div>
+                <h3>Order Medicines</h3>
+                <p>Get your medications quickly and easily.</p>
+            </div>
+
+            <div class="card" onclick="navigateTo('track-order.html')">
+                <div class="card-icon">
+                    <i class="material-icons">local_shipping</i>
+                </div>
+                <h3>Track Delivery</h3>
+                <p>Real-time updates on your order status.</p>
+            </div>
+
+            <div class="card" onclick="navigateTo('payment.html')">
+                <div class="card-icon">
+                    <i class="material-icons">payment</i>
+                </div>
+                <h3>Make a Payment</h3>
+                <p>Pay securely through multiple options.</p>
+            </div>
+
+            <div class="card" onclick="navigateTo('emergency.html')">
+                <div class="card-icon">
+                    <i class="material-icons">emergency</i>
+                </div>
+                <h3>Emergency Service</h3>
+                <p>Get immediate medical assistance.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUserInfo();
+            // Close logout menu when clicking outside
+            document.addEventListener('click', (e) => {
+                const userMenu = document.querySelector('.user-menu');
+                const logoutMenu = document.getElementById('logoutMenu');
+                if (!userMenu.contains(e.target)) {
+                    logoutMenu.classList.remove('show');
+                }
+            });
+        });
+
+        function toggleLogoutMenu() {
+            const logoutMenu = document.getElementById('logoutMenu');
+            logoutMenu.classList.toggle('show');
+        }
+
+        function updateUserInfo() {
+            const userSession = localStorage.getItem('userSession');
+            const guestSession = localStorage.getItem('guestSession');
+            const userNameElement = document.getElementById('userName');
+            
+            try {
+                if (userSession) {
+                    const session = JSON.parse(userSession);
+                    userNameElement.textContent = session.name;
+                } else if (guestSession) {
+                    const session = JSON.parse(guestSession);
+                    userNameElement.textContent = 'Guest User';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Error updating user info:', error);
+                handleLogout();
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+    </script>
+</body>
+</html> 
