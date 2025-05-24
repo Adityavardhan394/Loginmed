@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediQuick - Browse Medicines</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00b386;
+      --primary-dark: #009973;
+      --primary-light: rgba(0, 179, 134, 0.1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #e6fff9, #ffffff);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Enhanced Background Pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" opacity="0.05"><path d="M20 5L25 15H15L20 5Z" fill="%2300b386"/></svg>');
+      background-repeat: repeat;
+      z-index: -1;
+      animation: patternFloat 60s linear infinite;
+    }
+
+    @keyframes patternFloat {
+      0% { background-position: 0 0; }
+      100% { background-position: 100px 100px; }
+    }
+
+    .medicine-card {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: cardAppear 0.6s backwards;
+    }
+
+    .medicine-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 179, 134, 0.15);
+    }
+
+    @keyframes cardAppear {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Card Staggered Animation */
+    .medicine-card:nth-child(1) { animation-delay: 0.1s; }
+    .medicine-card:nth-child(2) { animation-delay: 0.2s; }
+    .medicine-card:nth-child(3) { animation-delay: 0.3s; }
+    .medicine-card:nth-child(4) { animation-delay: 0.4s; }
+    .medicine-card:nth-child(5) { animation-delay: 0.5s; }
+    .medicine-card:nth-child(6) { animation-delay: 0.6s; }
+
+    .medicine-icon {
+      transition: all 0.3s ease;
+    }
+
+    .medicine-card:hover .medicine-icon {
+      transform: scale(1.1) rotate(5deg);
+      color: var(--primary);
+    }
+
+    .search-container {
+      position: relative;
+      animation: slideDown 0.5s ease backwards;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .category-pill {
+      transition: all 0.3s ease;
+    }
+
+    .category-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 179, 134, 0.2);
+    }
+
+    /* Enhanced Card Hover Effect */
+    .medicine-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0,179,134,0.1) 0%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .medicine-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Sort Dropdown Animation */
+    .sort-dropdown {
+      animation: dropdownAppear 0.3s ease;
+      transform-origin: top right;
+    }
+
+    @keyframes dropdownAppear {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Filter Sidebar Animation */
+    .filter-sidebar {
+      animation: sidebarSlide 0.3s ease;
+    }
+
+    @keyframes sidebarSlide {
+      from {
+        transform: translateX(-100%);
+      }
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    /* Price Range Slider */
+    .price-slider {
+      -webkit-appearance: none;
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .price-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .price-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 10px rgba(0,179,134,0.3);
+    }
+
+    /* Cart Badge Animation */
+    .cart-badge {
+      animation: cartBadgePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes cartBadgePop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-teal-500 to-green-500 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3">
+      <div class="flex items-center justify-between">
+        <button onclick="window.location.href='dashboard.html'" 
+                class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded-lg transition-all duration-300">
+          <i class="material-icons">arrow_back</i>
+          <span class="font-medium">Back</span>
+        </button>
+        <h1 class="text-2xl font-bold">Browse Medicines</h1>
+        <div class="w-10"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container mx-auto px-4 py-6">
+    <!-- Search and Filters Row -->
+    <div class="flex flex-col md:flex-row gap-4 mb-8">
+      <!-- Search Bar -->
+      <div class="search-container flex-grow">
+        <div class="relative">
+          <input type="text" 
+                 placeholder="Search medicines, categories, symptoms..." 
+                 class="w-full p-4 pl-12 rounded-xl border-2 border-gray-100 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all duration-300 bg-white/80 backdrop-blur-sm shadow-md"
+          >
+          <i class="material-icons absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">search</i>
+        </div>
+      </div>
+
+      <!-- Sort Dropdown -->
+      <div class="relative">
+        <button onclick="toggleSort()" class="bg-white px-4 py-3 rounded-xl shadow-md flex items-center gap-2 hover:bg-gray-50 transition-all duration-300">
+          <i class="material-icons text-gray-600">sort</i>
+          <span>Sort By</span>
+        </button>
+        <div id="sortDropdown" class="sort-dropdown hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg z-10">
+          <div class="p-2">
+            <button class="w-full text-left px-4 py-2 rounded-lg hover:bg-teal-50 transition-all duration-300">Price: Low to High</button>
+            <button class="w-full text-left px-4 py-2 rounded-lg hover:bg-teal-50 transition-all duration-300">Price: High to Low</button>
+            <button class="w-full text-left px-4 py-2 rounded-lg hover:bg-teal-50 transition-all duration-300">Popularity</button>
+            <button class="w-full text-left px-4 py-2 rounded-lg hover:bg-teal-50 transition-all duration-300">Latest</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Button (Mobile) -->
+      <button onclick="toggleFilters()" class="md:hidden bg-white px-4 py-3 rounded-xl shadow-md flex items-center gap-2 hover:bg-gray-50 transition-all duration-300">
+        <i class="material-icons text-gray-600">filter_list</i>
+        <span>Filters</span>
+      </button>
+    </div>
+
+    <!-- Main Grid Layout -->
+    <div class="flex flex-col md:flex-row gap-6">
+      <!-- Filters Sidebar -->
+      <div id="filterSidebar" class="filter-sidebar hidden md:block w-full md:w-64 bg-white p-6 rounded-xl shadow-md">
+        <h3 class="text-lg font-semibold mb-4">Filters</h3>
+        
+        <!-- Price Range -->
+        <div class="mb-6">
+          <h4 class="font-medium mb-3">Price Range</h4>
+          <input type="range" class="price-slider w-full mb-2" min="0" max="1000" step="10">
+          <div class="flex justify-between text-sm text-gray-600">
+            <span>₹0</span>
+            <span>₹1000</span>
+          </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="mb-6">
+          <h4 class="font-medium mb-3">Categories</h4>
+          <div class="space-y-2">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" class="form-checkbox text-teal-500 rounded">
+              <span>Pain Relief</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" class="form-checkbox text-teal-500 rounded">
+              <span>Cold & Flu</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" class="form-checkbox text-teal-500 rounded">
+              <span>Diabetes</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" class="form-checkbox text-teal-500 rounded">
+              <span>Heart Health</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Availability -->
+        <div class="mb-6">
+          <h4 class="font-medium mb-3">Availability</h4>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" class="form-checkbox text-teal-500 rounded">
+            <span>In Stock Only</span>
+          </label>
+        </div>
+
+        <!-- Prescription Required -->
+        <div class="mb-6">
+          <h4 class="font-medium mb-3">Prescription</h4>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" class="form-checkbox text-teal-500 rounded">
+            <span>No Prescription Needed</span>
+          </label>
+        </div>
+
+        <!-- Clear Filters Button -->
+        <button class="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-all duration-300">
+          Clear All Filters
+        </button>
+      </div>
+
+      <!-- Medicine Grid -->
+      <div class="flex-grow">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Paracetamol Card -->
+          <div class="medicine-card bg-white rounded-2xl shadow-md overflow-hidden relative cursor-pointer">
+            <div class="h-40 bg-gradient-to-br from-teal-50 to-green-50 flex items-center justify-center">
+              <i class="medicine-icon fas fa-pills text-5xl text-teal-500"></i>
+            </div>
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">Paracetamol</h3>
+                  <p class="text-sm text-gray-500">Pain Relief</p>
+                </div>
+                <span class="bg-teal-100 text-teal-600 text-xs px-2 py-1 rounded-full">In Stock</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-4">Effective relief from fever and mild to moderate pain</p>
+              <div class="flex justify-between items-center">
+                <span class="text-lg font-bold text-teal-600">₹49.99</span>
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center bg-gray-100 rounded-lg">
+                    <button class="minus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">remove</i>
+                    </button>
+                    <span class="w-8 text-center">1</span>
+                    <button class="plus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">add</i>
+                    </button>
+                  </div>
+                  <button type="button" class="add-to-cart-btn bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <i class="material-icons text-sm">add_shopping_cart</i>
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ibuprofen Card -->
+          <div class="medicine-card bg-white rounded-2xl shadow-md overflow-hidden relative cursor-pointer">
+            <div class="h-40 bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center">
+              <i class="medicine-icon fas fa-capsules text-5xl text-blue-500"></i>
+            </div>
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">Ibuprofen</h3>
+                  <p class="text-sm text-gray-500">Anti-inflammatory</p>
+                </div>
+                <span class="bg-teal-100 text-teal-600 text-xs px-2 py-1 rounded-full">In Stock</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-4">Reduces inflammation and relieves pain</p>
+              <div class="flex justify-between items-center">
+                <span class="text-lg font-bold text-teal-600">₹89.99</span>
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center bg-gray-100 rounded-lg">
+                    <button class="minus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">remove</i>
+                    </button>
+                    <span class="w-8 text-center">1</span>
+                    <button class="plus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">add</i>
+                    </button>
+                  </div>
+                  <button type="button" class="add-to-cart-btn bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <i class="material-icons text-sm">add_shopping_cart</i>
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metformin Card -->
+          <div class="medicine-card bg-white rounded-2xl shadow-md overflow-hidden relative cursor-pointer">
+            <div class="h-40 bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center">
+              <i class="medicine-icon fas fa-tablets text-5xl text-purple-500"></i>
+            </div>
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">Metformin</h3>
+                  <p class="text-sm text-gray-500">Diabetes Care</p>
+                </div>
+                <span class="bg-yellow-100 text-yellow-600 text-xs px-2 py-1 rounded-full">Prescription Required</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-4">Oral diabetes medicine to control blood sugar</p>
+              <div class="flex justify-between items-center">
+                <span class="text-lg font-bold text-teal-600">₹199.99</span>
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center bg-gray-100 rounded-lg">
+                    <button class="minus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">remove</i>
+                    </button>
+                    <span class="w-8 text-center">1</span>
+                    <button class="plus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">add</i>
+                    </button>
+                  </div>
+                  <button type="button" class="add-to-cart-btn bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <i class="material-icons text-sm">add_shopping_cart</i>
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aspirin Card -->
+          <div class="medicine-card bg-white rounded-2xl shadow-md overflow-hidden relative cursor-pointer">
+            <div class="h-40 bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center">
+              <i class="medicine-icon fas fa-heart text-5xl text-red-500"></i>
+            </div>
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">Aspirin</h3>
+                  <p class="text-sm text-gray-500">Heart Health</p>
+                </div>
+                <span class="bg-teal-100 text-teal-600 text-xs px-2 py-1 rounded-full">In Stock</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-4">Blood-thinning medication for heart health</p>
+              <div class="flex justify-between items-center">
+                <span class="text-lg font-bold text-teal-600">₹79.99</span>
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center bg-gray-100 rounded-lg">
+                    <button class="minus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">remove</i>
+                    </button>
+                    <span class="w-8 text-center">1</span>
+                    <button class="plus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">add</i>
+                    </button>
+                  </div>
+                  <button type="button" class="add-to-cart-btn bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <i class="material-icons text-sm">add_shopping_cart</i>
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cetirizine Card -->
+          <div class="medicine-card bg-white rounded-2xl shadow-md overflow-hidden relative cursor-pointer">
+            <div class="h-40 bg-gradient-to-br from-yellow-50 to-green-50 flex items-center justify-center">
+              <i class="medicine-icon fas fa-allergies text-5xl text-yellow-500"></i>
+            </div>
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">Cetirizine</h3>
+                  <p class="text-sm text-gray-500">Allergy Relief</p>
+                </div>
+                <span class="bg-teal-100 text-teal-600 text-xs px-2 py-1 rounded-full">In Stock</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-4">24-hour relief from allergy symptoms</p>
+              <div class="flex justify-between items-center">
+                <span class="text-lg font-bold text-teal-600">₹69.99</span>
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center bg-gray-100 rounded-lg">
+                    <button class="minus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">remove</i>
+                    </button>
+                    <span class="w-8 text-center">1</span>
+                    <button class="plus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">add</i>
+                    </button>
+                  </div>
+                  <button type="button" class="add-to-cart-btn bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <i class="material-icons text-sm">add_shopping_cart</i>
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Omeprazole Card -->
+          <div class="medicine-card bg-white rounded-2xl shadow-md overflow-hidden relative cursor-pointer">
+            <div class="h-40 bg-gradient-to-br from-indigo-50 to-blue-50 flex items-center justify-center">
+              <i class="medicine-icon fas fa-prescription-bottle text-5xl text-indigo-500"></i>
+            </div>
+            <div class="p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">Omeprazole</h3>
+                  <p class="text-sm text-gray-500">Acid Reflux</p>
+                </div>
+                <span class="bg-teal-100 text-teal-600 text-xs px-2 py-1 rounded-full">In Stock</span>
+              </div>
+              <p class="text-sm text-gray-600 mb-4">Reduces stomach acid production</p>
+              <div class="flex justify-between items-center">
+                <span class="text-lg font-bold text-teal-600">₹129.99</span>
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center bg-gray-100 rounded-lg">
+                    <button class="minus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">remove</i>
+                    </button>
+                    <span class="w-8 text-center">1</span>
+                    <button class="plus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                      <i class="material-icons text-sm">add</i>
+                    </button>
+                  </div>
+                  <button type="button" class="add-to-cart-btn bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2">
+                    <i class="material-icons text-sm">add_shopping_cart</i>
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Cart Button with Badge -->
+  <button class="fixed bottom-6 right-6 bg-teal-500 text-white p-4 rounded-full shadow-lg hover:bg-teal-600 transition-all duration-300 flex items-center justify-center">
+    <i class="material-icons">shopping_cart</i>
+    <span class="cart-badge absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">3</span>
+  </button>
+
+  <script>
+    // Cart state management
+    let cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    
+    const updateCartBadge = () => {
+      const badge = document.querySelector('.cart-badge');
+      const totalQuantity = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      badge.textContent = totalQuantity;
+      badge.style.display = totalQuantity ? 'flex' : 'none';
+    };
+
+    // Update medicine quantity in the card
+    function updateMedicineQuantity(button, change) {
+      const quantitySpan = button.parentElement.querySelector('span');
+      let quantity = parseInt(quantitySpan.textContent);
+      quantity = Math.max(1, quantity + change);
+      quantitySpan.textContent = quantity;
+    }
+
+    // Additional medicine information
+    const medicineInfo = {
+      'Paracetamol': {
+        uses: 'Relief from fever, headache, and various body pains',
+        sideEffects: 'Rare side effects may include liver problems, skin rashes',
+        dosage: 'Adults: 1-2 tablets every 4-6 hours as needed',
+        warnings: 'Do not exceed 8 tablets in 24 hours. Avoid alcohol.'
+      },
+      'Ibuprofen': {
+        uses: 'Relief from pain, inflammation, and fever',
+        sideEffects: 'May cause stomach upset, heartburn, dizziness',
+        dosage: 'Adults: 200-400mg every 4-6 hours',
+        warnings: 'Take with food. Not recommended for stomach ulcer patients.'
+      },
+      'Metformin': {
+        uses: 'Control blood sugar levels in type 2 diabetes',
+        sideEffects: 'Nausea, diarrhea, stomach upset',
+        dosage: 'As prescribed by your doctor',
+        warnings: 'Prescription only. Regular blood sugar monitoring required.'
+      },
+      'Aspirin': {
+        uses: 'Pain relief, fever reduction, heart attack prevention',
+        sideEffects: 'Stomach upset, increased bleeding risk',
+        dosage: 'Adults: 300-900mg every 4-6 hours',
+        warnings: 'Not recommended for people with bleeding disorders.'
+      },
+      'Cetirizine': {
+        uses: 'Relief from allergy symptoms like sneezing and itching',
+        sideEffects: 'Drowsiness, dry mouth',
+        dosage: 'Adults and children over 12: 10mg once daily',
+        warnings: 'May cause drowsiness. Avoid alcohol.'
+      },
+      'Omeprazole': {
+        uses: 'Treatment of acid reflux and stomach ulcers',
+        sideEffects: 'Headache, stomach pain, nausea',
+        dosage: 'Adults: 20mg once daily',
+        warnings: 'Take on empty stomach. Complete prescribed course.'
+      }
+    };
+
+    // Show medicine details
+    function showMedicineDetails(medicineCard) {
+      const name = medicineCard.querySelector('h3').textContent;
+      const category = medicineCard.querySelector('p').textContent;
+      const description = medicineCard.querySelector('.text-sm.text-gray-600').textContent;
+      const price = medicineCard.querySelector('.text-lg.font-bold').textContent;
+      const isInStock = medicineCard.querySelector('.bg-teal-100') !== null;
+      const isPrescriptionRequired = medicineCard.querySelector('.bg-yellow-100') !== null;
+      const info = medicineInfo[name] || {};
+
+      const popup = document.createElement('div');
+      popup.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+      popup.innerHTML = `
+        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="p-6">
+            <div class="flex justify-between items-start mb-6">
+              <h2 class="text-2xl font-semibold">${name}</h2>
+              <button class="close-popup text-gray-400 hover:text-gray-600 transition-all">
+                <i class="material-icons">close</i>
+              </button>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+              <div class="flex items-center justify-center bg-gray-50 rounded-xl p-8">
+                <i class="fas fa-pills text-8xl text-teal-500"></i>
+              </div>
+              
+              <div class="space-y-4">
+                <div>
+                  <h3 class="font-medium text-gray-600">Category</h3>
+                  <p>${category}</p>
+                </div>
+                
+                <div>
+                  <h3 class="font-medium text-gray-600">Description</h3>
+                  <p>${description}</p>
+                </div>
+                
+                <div class="flex gap-2">
+                  ${isInStock ? 
+                    '<span class="bg-teal-100 text-teal-600 px-2 py-1 rounded-full text-sm">In Stock</span>' : 
+                    '<span class="bg-red-100 text-red-600 px-2 py-1 rounded-full text-sm">Out of Stock</span>'}
+                  ${isPrescriptionRequired ? 
+                    '<span class="bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-sm">Prescription Required</span>' : ''}
+                </div>
+                
+                <div class="flex items-end justify-between">
+                  <div>
+                    <h3 class="font-medium text-gray-600">Price</h3>
+                    <p class="text-2xl font-bold text-teal-600">${price}</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="flex items-center bg-gray-100 rounded-lg">
+                      <button class="minus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                        <i class="material-icons text-sm">remove</i>
+                      </button>
+                      <span class="w-8 text-center">1</span>
+                      <button class="plus-btn px-2 py-1 text-gray-600 hover:text-teal-600 transition-all">
+                        <i class="material-icons text-sm">add</i>
+                      </button>
+                    </div>
+                    <button type="button" class="add-to-cart-btn bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center gap-2">
+                      <i class="material-icons">add_shopping_cart</i>
+                      Add to Cart
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="mt-8 space-y-6">
+              <h3 class="text-xl font-semibold">Detailed Information</h3>
+              
+              <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h4 class="font-medium text-teal-600 mb-2">Uses</h4>
+                  <p>${info.uses || 'Information not available'}</p>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h4 class="font-medium text-red-600 mb-2">Side Effects</h4>
+                  <p>${info.sideEffects || 'Information not available'}</p>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h4 class="font-medium text-blue-600 mb-2">Dosage</h4>
+                  <p>${info.dosage || 'As directed by your healthcare provider'}</p>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h4 class="font-medium text-yellow-600 mb-2">Warnings</h4>
+                  <p>${info.warnings || 'Consult your healthcare provider before use'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Store the original medicine card for reference
+      popup._medicineCard = medicineCard;
+      document.body.appendChild(popup);
+
+      // Setup event listeners for the popup
+      const closeBtn = popup.querySelector('.close-popup');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => popup.remove());
+      }
+
+      // Setup add to cart button in popup
+      const addButton = popup.querySelector('.add-to-cart-btn');
+      const minusBtn = popup.querySelector('.minus-btn');
+      const plusBtn = popup.querySelector('.plus-btn');
+      const quantitySpan = popup.querySelector('.flex.items-center.bg-gray-100 span');
+
+      if (addButton) {
+        addButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Pass the original medicine card to addToCart
+          addToCart(null, medicineCard);
+        });
+      }
+
+      // Setup quantity controls in popup
+      if (minusBtn && plusBtn && quantitySpan) {
+        minusBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          updateMedicineQuantity(minusBtn, -1);
+        });
+
+        plusBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          updateMedicineQuantity(plusBtn, 1);
+        });
+      }
+
+      // Close on background click
+      popup.addEventListener('click', (e) => {
+        if (e.target === popup) {
+          popup.remove();
+        }
+      });
+    }
+
+    // Add to cart functionality
+    function addToCart(event, medicineCard) {
+      // Get the medicine card from the clicked button
+      const addButton = event ? event.currentTarget : medicineCard.querySelector('.add-to-cart-btn');
+      const medicineCardToUse = event ? medicineCard : addButton.closest('.medicine-card') || addButton.closest('.bg-white.rounded-xl');
+      
+      console.log("Add to cart clicked:", {
+        button: addButton,
+        medicineCard: medicineCardToUse
+      });
+
+      try {
+        // Validate medicineCard
+        if (!medicineCardToUse || !(medicineCardToUse instanceof Element)) {
+          console.error("Invalid medicine card:", medicineCardToUse);
+          showToast("Error adding item to cart", "error");
+          return;
+        }
+
+        // Log the entire HTML content of the medicine card for debugging
+        console.log("Medicine Card HTML:", medicineCardToUse.innerHTML);
+
+        // Get medicine details with error handling
+        const nameElement = medicineCardToUse.querySelector('h3');
+        const priceElement = medicineCardToUse.querySelector('.text-lg.font-bold.text-teal-600');
+        const quantityElement = medicineCardToUse.querySelector('.flex.items-center.bg-gray-100 span');
+        const prescriptionElement = medicineCardToUse.querySelector('.bg-yellow-100');
+
+        // Log all found elements
+        console.log("Found Elements:", {
+          nameElement,
+          priceElement,
+          quantityElement,
+          prescriptionElement
+        });
+
+        // Validate required elements
+        if (!nameElement || !priceElement || !quantityElement) {
+          console.error("Missing required elements:", {
+            nameElementExists: !!nameElement,
+            priceElementExists: !!priceElement,
+            quantityElementExists: !!quantityElement
+          });
+          showToast("Error adding item to cart", "error");
+          return;
+        }
+
+        const name = nameElement.textContent.trim();
+        const price = priceElement.textContent.trim();
+        const priceValue = parseFloat(price.replace('₹', ''));
+        const quantity = parseInt(quantityElement.textContent.trim());
+        const isPrescriptionRequired = prescriptionElement !== null;
+
+        // Validate parsed values
+        if (isNaN(priceValue) || isNaN(quantity) || quantity <= 0) {
+          console.error("Invalid values:", { priceValue, quantity });
+          showToast("Error: Invalid price or quantity", "error");
+          return;
+        }
+
+        console.log("Parsed Item Details:", {
+          name,
+          price,
+          priceValue,
+          quantity,
+          isPrescriptionRequired
+        });
+
+        const addItemToCart = () => {
+          const existingItemIndex = cartItems.findIndex(item => item.name === name);
+          
+          if (existingItemIndex !== -1) {
+            cartItems[existingItemIndex].quantity = (cartItems[existingItemIndex].quantity || 1) + quantity;
+            showToast(`Added ${quantity} more ${name} (${cartItems[existingItemIndex].quantity} total)`);
+          } else {
+            cartItems.push({ 
+              name, 
+              price: price,
+              priceValue: priceValue,
+              quantity: quantity
+            });
+            showToast(`Added ${quantity} ${name} to cart!`);
+          }
+          
+          localStorage.setItem('cartItems', JSON.stringify(cartItems));
+          updateCartBadge();
+          quantityElement.textContent = '1';
+
+          console.log("Updated cart items:", cartItems);
+        };
+
+        if (isPrescriptionRequired) {
+          showPrescriptionPopup(name, addItemToCart);
+        } else {
+          addItemToCart();
+        }
+      } catch (error) {
+        console.error("Error in addToCart:", error);
+        showToast("Error adding item to cart", "error");
+      }
+    }
+
+    // Show toast notification with type support
+    function showToast(message, type = 'success') {
+      // Remove existing toast if any
+      const existingToast = document.querySelector('.toast-message');
+      if (existingToast) {
+        existingToast.remove();
+      }
+
+      const toast = document.createElement('div');
+      toast.className = `toast-message fixed bottom-24 right-6 px-6 py-3 rounded-lg shadow-lg transition-all transform translate-y-0 opacity-100 z-50
+                        ${type === 'success' ? 'bg-teal-500' : 'bg-red-500'} text-white`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      // Animate out
+      setTimeout(() => {
+        toast.style.transform = 'translateY(20px)';
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 2000);
+    }
+
+    // Show prescription popup
+    function showPrescriptionPopup(medicineName, onConfirm) {
+      const popup = document.createElement('div');
+      popup.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      popup.innerHTML = `
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-xl">
+          <h3 class="text-xl font-semibold mb-4">Prescription Required</h3>
+          <p class="text-gray-600 mb-6">${medicineName} requires a valid prescription. Please upload your prescription to proceed.</p>
+          <input type="file" accept="image/*,.pdf" class="mb-4 w-full">
+          <div class="flex justify-end gap-4">
+            <button onclick="this.closest('.fixed').remove()" 
+                    class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
+              Cancel
+            </button>
+            <button onclick="handlePrescriptionSubmit(this)" 
+                    class="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-all">
+              Submit Prescription
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(popup);
+
+      // Store the callback
+      popup._onConfirm = onConfirm;
+    }
+
+    // Handle prescription submission
+    function handlePrescriptionSubmit(button) {
+      const popup = button.closest('.fixed');
+      const file = popup.querySelector('input[type="file"]').files[0];
+      
+      if (!file) {
+        showToast('Please upload a prescription file', 'error');
+        return;
+      }
+
+      // Here you would typically upload the file to your server
+      // For demo purposes, we'll just simulate success
+      popup._onConfirm();
+      popup.remove();
+    }
+
+    // Search functionality
+    function setupSearch() {
+      const searchInput = document.querySelector('input[type="text"]');
+      const medicineCards = document.querySelectorAll('.medicine-card');
+
+      searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        
+        medicineCards.forEach(card => {
+          const name = card.querySelector('h3').textContent.toLowerCase();
+          const category = card.querySelector('p').textContent.toLowerCase();
+          const description = card.querySelector('.text-sm.text-gray-600').textContent.toLowerCase();
+          
+          const matches = name.includes(searchTerm) || 
+                         category.includes(searchTerm) || 
+                         description.includes(searchTerm);
+          
+          card.style.display = matches ? 'block' : 'none';
+        });
+      });
+    }
+
+    // Initialize everything when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log("Page loaded, initializing..."); // Debug log
+
+      // Setup cart badge
+      updateCartBadge();
+
+      // Setup search
+      setupSearch();
+
+      // Setup add to cart functionality for all medicine cards
+      document.querySelectorAll('.medicine-card').forEach((card, index) => {
+        console.log(`Setting up medicine card ${index + 1}`); // Debug log
+
+        // Setup card click for details
+        card.addEventListener('click', () => showMedicineDetails(card));
+
+        // Setup add to cart button
+        const addButton = card.querySelector('.add-to-cart-btn');
+        if (addButton) {
+          addButton.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent any default behavior
+            e.stopPropagation(); // Stop event from bubbling up
+            console.log(`Add button clicked for card ${index + 1}`);
+            addToCart(e, card);
+          });
+        } else {
+          console.warn(`Add button not found in card ${index + 1}`);
+        }
+
+        // Setup quantity controls
+        const minusBtn = card.querySelector('.minus-btn');
+        const plusBtn = card.querySelector('.plus-btn');
+        const quantitySpan = card.querySelector('.flex.items-center.bg-gray-100 span');
+
+        if (minusBtn && plusBtn && quantitySpan) {
+          minusBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            updateMedicineQuantity(minusBtn, -1);
+          });
+
+          plusBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            updateMedicineQuantity(plusBtn, 1);
+          });
+        } else {
+          console.warn(`Quantity controls not found in card ${index + 1}`);
+        }
+      });
+
+      // Setup cart button click
+      const cartButton = document.querySelector('.fixed.bottom-6.right-6');
+      if (cartButton) {
+        cartButton.addEventListener('click', () => {
+          window.location.href = 'cart.html';
+        });
+      }
+    });
+
+    function toggleSort() {
+      const dropdown = document.getElementById('sortDropdown');
+      dropdown.classList.toggle('hidden');
+    }
+
+    function toggleFilters() {
+      const sidebar = document.getElementById('filterSidebar');
+      sidebar.classList.toggle('hidden');
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      const sortDropdown = document.getElementById('sortDropdown');
+      const sortButton = e.target.closest('button');
+      
+      if (!sortButton && !sortDropdown.contains(e.target)) {
+        sortDropdown.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediQuick - Your Cart</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00b386;
+      --primary-dark: #009973;
+      --primary-light: rgba(0, 179, 134, 0.1);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #e6fff9, #ffffff);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Enhanced Background Pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" opacity="0.05"><path d="M20 5L25 15H15L20 5Z" fill="%2300b386"/></svg>');
+      background-repeat: repeat;
+      z-index: -1;
+      animation: patternFloat 60s linear infinite;
+    }
+
+    @keyframes patternFloat {
+      0% { background-position: 0 0; }
+      100% { background-position: 100px 100px; }
+    }
+
+    .cart-item {
+      transition: all 0.3s ease;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    .cart-item:hover {
+      transform: translateX(8px);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .payment-method {
+      transition: all 0.3s ease;
+    }
+
+    .payment-method:hover {
+      transform: scale(1.02);
+    }
+
+    .payment-method.selected {
+      border-color: var(--primary);
+      background-color: var(--primary-light);
+    }
+
+    .offer-badge {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .checkout-button {
+      transition: all 0.3s ease;
+    }
+
+    .checkout-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 179, 134, 0.2);
+    }
+
+    .summary-card {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-teal-500 to-green-500 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3">
+      <div class="flex items-center justify-between">
+        <button onclick="window.location.href='medicines.html'" 
+                class="flex items-center space-x-2 hover:bg-white/10 px-3 py-2 rounded-lg transition-all duration-300">
+          <i class="material-icons">arrow_back</i>
+          <span class="font-medium">Back to Medicines</span>
+        </button>
+        <h1 class="text-2xl font-bold">Your Cart</h1>
+        <div class="w-10"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Cart Items Section -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+          <h2 class="text-xl font-semibold mb-4">Cart Items</h2>
+          <div id="cartItems" class="space-y-4">
+            <!-- Cart items will be dynamically added here -->
+          </div>
+        </div>
+
+        <!-- Offer Code Section -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold">Apply Offer Code</h2>
+            <span class="offer-badge bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm">
+              Save up to 25%
+            </span>
+          </div>
+          <div class="flex gap-4">
+            <input type="text" 
+                   placeholder="Enter offer code" 
+                   class="flex-grow p-3 border rounded-lg focus:ring-2 focus:ring-teal-200 focus:border-teal-500 transition-all">
+            <button class="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition-all">
+              Apply
+            </button>
+          </div>
+          <!-- Popular Offers -->
+          <div class="mt-4 space-y-2">
+            <div class="text-sm text-gray-600">Popular offers:</div>
+            <div class="flex flex-wrap gap-2">
+              <span class="bg-gray-100 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-all">
+                FIRST25
+              </span>
+              <span class="bg-gray-100 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-all">
+                WELLNESS20
+              </span>
+              <span class="bg-gray-100 px-3 py-1 rounded-full text-sm cursor-pointer hover:bg-gray-200 transition-all">
+                HEALTH15
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delivery Information -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h2 class="text-xl font-semibold mb-4">Delivery Information</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-gray-600 mb-2">Full Name</label>
+              <input type="text" 
+                     class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-teal-200 focus:border-teal-500 transition-all"
+                     placeholder="Enter your full name">
+            </div>
+            <div>
+              <label class="block text-gray-600 mb-2">Phone Number</label>
+              <input type="tel" 
+                     class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-teal-200 focus:border-teal-500 transition-all"
+                     placeholder="Enter your phone number">
+            </div>
+            <div>
+              <label class="block text-gray-600 mb-2">Email</label>
+              <input type="email" 
+                     class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-teal-200 focus:border-teal-500 transition-all"
+                     placeholder="Enter your email">
+            </div>
+            <div>
+              <label class="block text-gray-600 mb-2">Delivery Address</label>
+              <textarea class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-teal-200 focus:border-teal-500 transition-all"
+                        rows="3"
+                        placeholder="Enter your complete delivery address"></textarea>
+            </div>
+            <div>
+              <label class="block text-gray-600 mb-2">Landmark (Optional)</label>
+              <input type="text" 
+                     class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-teal-200 focus:border-teal-500 transition-all"
+                     placeholder="Enter a nearby landmark">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary Section -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-md p-6 sticky top-4 summary-card">
+          <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
+          
+          <!-- Summary Details -->
+          <div class="space-y-3 mb-6">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Subtotal</span>
+              <span id="subtotal" class="font-medium">₹0.00</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Delivery Charges</span>
+              <span class="text-green-600">Free</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Discount</span>
+              <span id="discount" class="text-red-600">-₹0.00</span>
+            </div>
+            <div class="border-t pt-3">
+              <div class="flex justify-between">
+                <span class="font-semibold">Total</span>
+                <span id="total" class="font-bold text-lg">₹0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estimated Delivery -->
+          <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h3 class="font-medium mb-2">Estimated Delivery</h3>
+            <div class="flex items-center gap-3 text-gray-600">
+              <i class="material-icons">local_shipping</i>
+              <div>
+                <p class="font-medium text-gray-800">Tomorrow, by 8:00 PM</p>
+                <p class="text-sm">Free Standard Delivery</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Methods -->
+          <div class="space-y-3 mb-6">
+            <h3 class="font-medium">Payment Method</h3>
+            <div class="payment-method border rounded-lg p-3 cursor-pointer">
+              <div class="flex items-center gap-3">
+                <i class="fas fa-credit-card text-teal-500"></i>
+                <span>Credit/Debit Card</span>
+              </div>
+            </div>
+            <div class="payment-method border rounded-lg p-3 cursor-pointer">
+              <div class="flex items-center gap-3">
+                <i class="fas fa-wallet text-teal-500"></i>
+                <span>UPI</span>
+              </div>
+            </div>
+            <div class="payment-method border rounded-lg p-3 cursor-pointer">
+              <div class="flex items-center gap-3">
+                <i class="fas fa-money-bill-wave text-teal-500"></i>
+                <span>Cash on Delivery</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Save for Later -->
+          <div class="mb-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" class="form-checkbox text-teal-500 rounded">
+              <span class="text-sm text-gray-600">Save delivery information for future orders</span>
+            </label>
+          </div>
+
+          <!-- Checkout Button -->
+          <button onclick="proceedToCheckout()" 
+                  class="checkout-button w-full bg-teal-500 text-white py-4 rounded-lg font-medium hover:bg-teal-600 transition-all">
+            Proceed to Checkout
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Load cart items from localStorage
+    function loadCart() {
+      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      const cartContainer = document.getElementById('cartItems');
+      let subtotal = 0;
+
+      cartContainer.innerHTML = '';
+
+      if (cartItems.length === 0) {
+        cartContainer.innerHTML = `
+          <div class="text-center py-8 text-gray-500">
+            <i class="material-icons text-6xl mb-4">shopping_cart</i>
+            <p>Your cart is empty</p>
+            <button onclick="window.location.href='medicines.html'" 
+                    class="mt-4 text-teal-500 hover:text-teal-600 transition-all">
+              Continue Shopping
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      cartItems.forEach((item, index) => {
+        const itemTotal = item.priceValue * (item.quantity || 1);
+        subtotal += itemTotal;
+
+        cartContainer.innerHTML += `
+          <div class="cart-item flex items-center justify-between p-4 border rounded-lg">
+            <div class="flex items-center gap-4">
+              <i class="fas fa-pills text-3xl text-teal-500"></i>
+              <div>
+                <h3 class="font-medium">${item.name}</h3>
+                <p class="text-gray-600">${item.price} each</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-2">
+                <button onclick="updateQuantity(${index}, -1)" 
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-all">
+                  <i class="material-icons text-sm">remove</i>
+                </button>
+                <span class="w-8 text-center font-medium">${item.quantity || 1}</span>
+                <button onclick="updateQuantity(${index}, 1)" 
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-all">
+                  <i class="material-icons text-sm">add</i>
+                </button>
+              </div>
+              <div class="text-right min-w-[80px]">
+                <div class="font-medium">₹${itemTotal.toFixed(2)}</div>
+                <button onclick="removeFromCart(${index})" 
+                        class="text-red-500 hover:text-red-600 transition-all text-sm">
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      // Update summary
+      document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+      document.getElementById('total').textContent = `₹${subtotal.toFixed(2)}`;
+    }
+
+    // Update item quantity
+    function updateQuantity(index, change) {
+      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      const item = cartItems[index];
+      
+      const newQuantity = (item.quantity || 1) + change;
+      if (newQuantity < 1) {
+        removeFromCart(index);
+        return;
+      }
+      
+      item.quantity = newQuantity;
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+      loadCart();
+    }
+
+    // Remove item from cart
+    function removeFromCart(index) {
+      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      cartItems.splice(index, 1);
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+      loadCart();
+    }
+
+    // Handle payment method selection
+    document.querySelectorAll('.payment-method').forEach(method => {
+      method.addEventListener('click', () => {
+        document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+        method.classList.add('selected');
+      });
+    });
+
+    // Handle checkout
+    function proceedToCheckout() {
+      const selectedPayment = document.querySelector('.payment-method.selected');
+      if (!selectedPayment) {
+        alert('Please select a payment method');
+        return;
+      }
+
+      // Validate delivery information
+      const name = document.querySelector('input[type="text"]').value;
+      const phone = document.querySelector('input[type="tel"]').value;
+      const email = document.querySelector('input[type="email"]').value;
+      const address = document.querySelector('textarea').value;
+
+      if (!name || !phone || !email || !address) {
+        alert('Please fill in all required delivery information');
+        return;
+      }
+
+      // Save delivery information if checkbox is checked
+      const saveInfo = document.querySelector('input[type="checkbox"]').checked;
+      if (saveInfo) {
+        localStorage.setItem('deliveryInfo', JSON.stringify({
+          name, phone, email, address,
+          landmark: document.querySelector('input[placeholder="Enter a nearby landmark"]').value
+        }));
+      }
+
+      // Here you would typically integrate with a payment gateway
+      alert('Proceeding to payment...');
+    }
+
+    // Load saved delivery information
+    function loadDeliveryInfo() {
+      const savedInfo = JSON.parse(localStorage.getItem('deliveryInfo'));
+      if (savedInfo) {
+        document.querySelector('input[type="text"]').value = savedInfo.name;
+        document.querySelector('input[type="tel"]').value = savedInfo.phone;
+        document.querySelector('input[type="email"]').value = savedInfo.email;
+        document.querySelector('textarea').value = savedInfo.address;
+        document.querySelector('input[placeholder="Enter a nearby landmark"]').value = savedInfo.landmark || '';
+      }
+    }
+
+    // Handle offer code application
+    function applyOffer(code) {
+      const offerInput = document.querySelector('input[type="text"]');
+      offerInput.value = code;
+      
+      // Simulate offer application
+      const subtotal = parseFloat(document.getElementById('subtotal').textContent.replace('₹', ''));
+      let discount = 0;
+      
+      switch(code) {
+        case 'FIRST25':
+          discount = subtotal * 0.25;
+          break;
+        case 'WELLNESS20':
+          discount = subtotal * 0.20;
+          break;
+        case 'HEALTH15':
+          discount = subtotal * 0.15;
+          break;
+      }
+      
+      document.getElementById('discount').textContent = `-₹${discount.toFixed(2)}`;
+      document.getElementById('total').textContent = `₹${(subtotal - discount).toFixed(2)}`;
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCart();
+      loadDeliveryInfo();
+      
+      // Setup offer code clicks
+      document.querySelectorAll('.bg-gray-100.px-3.py-1').forEach(offer => {
+        offer.addEventListener('click', () => {
+          applyOffer(offer.textContent.trim());
+        });
+      });
+
+      // Setup offer code button
+      document.querySelector('.flex.gap-4 button').addEventListener('click', () => {
+        const code = document.querySelector('input[type="text"]').value.trim();
+        if (code) {
+          applyOffer(code);
+        }
+      });
+    });
+  </script>
+</body>
+</html> 
